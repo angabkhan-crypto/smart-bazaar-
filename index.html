@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="bn">
-<head>
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Smart Bazar</title>
@@ -1039,12 +1060,37 @@
       color: var(--muted);
       font-size: 0.85rem;
     }
+  
+    /* ---- Live Location / Nearby Shops (Bangladesh) ---- */
+    .nearby-box{background:#fff;border:2px solid #0f766e;border-radius:14px;padding:14px;margin:14px 0}
+    .nearby-box h3{margin:0 0 6px;font-size:1.05rem}
+    .nearby-sub{color:var(--muted);font-size:.86rem;margin-bottom:10px}
+    .nearby-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+    .nearby-controls select,.nearby-controls button{padding:9px 12px;border-radius:9px;border:1px solid var(--border);font-size:.9rem}
+    .nearby-controls button{cursor:pointer;background:#0f766e;color:#fff;border-color:#0f766e;font-weight:700}
+    .nearby-controls button.secondary{background:#fff;color:#0f172a}
+    .nearby-status{font-size:.88rem;font-weight:600;margin:6px 0}
+    .nearby-list{display:grid;gap:10px}
+    .nearby-card{border:1px solid var(--border);border-radius:12px;padding:11px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .nearby-card b{font-size:.98rem}
+    .nearby-card .dist{white-space:nowrap;background:#ecfdf5;color:#065f46;border-radius:999px;padding:4px 10px;font-weight:800;font-size:.82rem}
+    .nearby-card .dist.far{background:#fef3c7;color:#92400e}
+    .nearby-card .dist.unknown{background:#f1f5f9;color:#64748b}
+    .nearby-card small{color:var(--muted)}
+    .nearby-card .shop-btn{margin-top:8px;padding:7px 11px;border-radius:8px;border:1px solid #0f766e;background:#0f766e;color:#fff;font-weight:700;cursor:pointer}
+    .vendor-loc-box{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;font-size:.88rem}
+    .vendor-loc-box summary{cursor:pointer;font-weight:800}
+  
+    /* ---- Logo beside name, compact header ---- */
+    #home .brand-row{display:flex;align-items:center;justify-content:center;gap:10px}
+    #home .brand-row h1{margin:0;font-size:1.9rem;line-height:1.1}
+    .sb-main-logo{width:56px;height:56px;object-fit:cover;flex:0 0 auto;display:block;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+    .home-hero-banner img{max-height:360px;object-fit:cover}
   </style>
 </head>
 <body>
-  <template id="sbLogoTemplate">
-    <span aria-hidden="true" style="font-size:1.3rem;line-height:1">🛍️</span>
-  </template>
+  <!-- Single basket logo, home only -->
+  <template id="sbLogoTemplate"></template>
 
   <template id="sbLangSwitchTemplate">
     <div class="lang-switch-bar" role="group" aria-label="Language Switcher">
@@ -1057,7 +1103,7 @@
   <div id="home" class="page active">
     <header class="header">
       <div data-lang-slot="1"></div>
-      <div class="brand-row" data-logo-slot="1"><h1>Smart Bazar</h1></div>
+      <div class="brand-row" data-logo-slot="1"><img class="sb-main-logo" src="smart-bazar-logo.jpg" alt="Smart Bazar ঝুড়ি লোগো"><h1>Smart Bazar</h1></div>
       <p id="homeTagline">খুচরা ও পাইকারি কেনাকাটা, নিজস্ব দোকান ও দ্রুত ডেলিভারি</p>
     </header>
     <div class="home-hero-banner" id="homeBannerBox">
@@ -1071,6 +1117,16 @@
       />
     </div>
     <main class="main-container">
+      <section class="hero-card">
+        <h2 id="homeHeroTitle">সবকিছু এক প্ল্যাটফর্মে</h2>
+        <p class="description" id="homeHeroDesc">ক্রেতা হিসেবে খুচরা বা পাইকারি পণ্য কিনুন, অথবা নিজের দোকান নিবন্ধন করে ব্যবসা পরিচালনা করুন।</p>
+        <div class="hero-actions">
+          <a class="btn" id="homeShopBtn" href="#customer">🛒 কেনাকাটা শুরু করুন</a>
+          <a class="btn vendor" id="homeVendorBtn" href="#business">🏪 ব্যবসায়ী আবেদন</a>
+          <a class="btn track" id="homeOrdersBtn" href="#myOrders">📋 আমার অর্ডার</a>
+          <a class="btn secondary" id="homeDashBtn" href="#dashboard">🔐 ড্যাশবোর্ড</a>
+        </div>
+      </section>
       <div class="ticker-wrap">
         <span class="ticker-badge" id="tickerBadge">ঘোষণা</span>
         <div class="ticker-marquee">
@@ -1086,16 +1142,7 @@
         <div class="fav-shops-list" id="homeFavShopsList"></div>
       </section>
 
-      <section class="hero-card">
-        <h2 id="homeHeroTitle">সবকিছু এক প্ল্যাটফর্মে</h2>
-        <p class="description" id="homeHeroDesc">ক্রেতা হিসেবে খুচরা বা পাইকারি পণ্য কিনুন, অথবা নিজের দোকান নিবন্ধন করে ব্যবসা পরিচালনা করুন।</p>
-        <div class="hero-actions">
-          <a class="btn" id="homeShopBtn" href="#customer">🛒 কেনাকাটা শুরু করুন</a>
-          <a class="btn vendor" id="homeVendorBtn" href="#business">🏪 ব্যবসায়ী আবেদন</a>
-          <a class="btn track" id="homeOrdersBtn" href="#myOrders">📋 আমার অর্ডার</a>
-          <a class="btn secondary" id="homeDashBtn" href="#dashboard">🔐 ড্যাশবোর্ড</a>
-        </div>
-      </section>
+      
 
       <h3 class="sec-title" id="homeFeaturedTitle">✨ নির্বাচিত পণ্যসমূহ</h3>
       <div id="homeFeaturedGrid" class="product-grid"></div>
@@ -1133,6 +1180,37 @@
         <div class="fav-shops-list" id="custFavShopsList"></div>
       </section>
 
+      
+      <!-- 📍 লাইভ লোকেশন: আশেপাশের অনুমোদিত দোকান -->
+      <section class="nearby-box" id="nearbySection">
+        <h3>📍 আপনার আশেপাশের অনুমোদিত দোকান</h3>
+        <div class="nearby-sub">লাইভ লোকেশন চালু করলে কেনাকাটার সময় আপনার সবচেয়ে কাছের অনুমোদিত দোকানগুলো আগে দেখাবে। লোকেশন আপনার ফোনেই থাকে, সার্ভারে পাঠানো হয় না।</div>
+        <div class="nearby-controls">
+          <button type="button" id="nearbyLocBtn">📍 আমার লাইভ লোকেশন চালু করুন</button>
+          <select id="nearbyDistrictSelect" aria-label="জেলা বেছে নিন"><option value="">— অথবা জেলা বেছে নিন —</option></select>
+          <select id="nearbyRadiusSelect" aria-label="দূরত্ব">
+            <option value="5">৫ কিমি এর মধ্যে</option>
+            <option value="10" selected>১০ কিমি এর মধ্যে</option>
+            <option value="20">২০ কিমি এর মধ্যে</option>
+            <option value="50">৫০ কিমি এর মধ্যে</option>
+            <option value="0">পুরো বাংলাদেশ</option>
+          </select>
+          <button type="button" class="secondary" id="nearbyRefreshBtn">🔄 আবার খুঁজুন</button>
+        </div>
+        <div class="nearby-status" id="nearbyStatus">লোকেশন এখনো চালু হয়নি। উপরের বাটনে চাপ দিন অথবা জেলা বেছে নিন।</div>
+        <div class="nearby-list" id="nearbyList"></div>
+        <details class="vendor-loc-box">
+          <summary>🏪 দোকানদারদের জন্য: আমার দোকানের লোকেশন সেট করুন</summary>
+          <p style="color:var(--muted)">আপনার দোকান নির্বাচন করুন, তারপর GPS দিয়ে লোকেশন সেভ করুন। তাহলে আপনার এলাকার ক্রেতারা আপনাকে কাছের দোকান হিসেবে দেখতে পাবে।</p>
+          <div class="nearby-controls">
+            <select id="vendorShopSelect"><option value="">— আপনার দোকান —</option></select>
+            <select id="vendorDistrictSelect"><option value="">— দোকানের জেলা —</option></select>
+            <button type="button" id="vendorSaveGpsBtn">📍 GPS দিয়ে সেভ করুন</button>
+            <button type="button" class="secondary" id="vendorSaveDistrictBtn">জেলা দিয়ে সেভ করুন</button>
+          </div>
+          <div class="nearby-status" id="vendorLocStatus"></div>
+        </details>
+      </section>
       <div class="loading-banner show" id="productLoadingBanner">⏳ পণ্য তালিকা লোড হচ্ছে...</div>
 
       <div class="mode-bar">
@@ -1646,11 +1724,7 @@
 <script>
 (function () {
   var logoTpl = document.getElementById("sbLogoTemplate");
-  if (logoTpl && logoTpl.content) {
-    document.querySelectorAll("[data-logo-slot]").forEach(function (slot) {
-      slot.insertBefore(logoTpl.content.cloneNode(true), slot.firstChild);
-    });
-  }
+  /* Single logo: do NOT inject logo into every header. */
 
   var langTpl = document.getElementById("sbLangSwitchTemplate");
   if (langTpl && langTpl.content) {
@@ -4693,6 +4767,205 @@ showPage();
 })();
 </script>
 
-</body>
+
+<script>
+/* ===== Smart Bazar: Live Location + Nearby Approved Shops (Whole Bangladesh) ===== */
+(function(){
+  // 64 districts of Bangladesh -> approx centre lat/lng (for district fallback + distance)
+  var BD_DISTRICTS = {"ঢাকা":[23.8103,90.4125],"গাজীপুর":[24.0023,90.4266],"নারায়ণগঞ্জ":[23.6238,90.5000],"নরসিংদী":[23.9322,90.7156],"মানিকগঞ্জ":[23.8619,90.0013],"মুন্সিগঞ্জ":[23.5422,90.5305],"টাঙ্গাইল":[24.2513,89.9167],"কিশোরগঞ্জ":[24.4260,90.7829],"ফরিদপুর":[23.6071,89.8426],"গোপালগঞ্জ":[23.0055,89.8266],"মাদারীপুর":[23.1641,90.1897],"রাজবাড়ী":[23.7574,89.6440],"শরীয়তপুর":[23.2423,90.4348],"চট্টগ্রাম":[22.3569,91.7832],"কক্সবাজার":[21.4272,92.0058],"রাঙ্গামাটি":[22.7324,92.2985],"বান্দরবান":[22.1950,92.2184],"খাগড়াছড়ি":[23.1193,91.9847],"কুমিল্লা":[23.4607,91.1809],"চাঁদপুর":[23.2336,90.6710],"ব্রাহ্মণবাড়িয়া":[23.9579,91.1119],"নোয়াখালী":[22.8696,91.0991],"লক্ষ্মীপুর":[22.9441,90.8289],"ফেনী":[23.0159,91.3976],"সিলেট":[24.8949,91.8687],"মৌলভীবাজার":[24.4829,91.7774],"হবিগঞ্জ":[24.3745,91.4159],"সুনামগঞ্জ":[25.0658,91.3953],"রাজশাহী":[24.3745,88.6042],"নাটোর":[24.4106,88.9307],"চাঁপাইনবাবগঞ্জ":[24.5965,88.2778],"পাবনা":[24.0023,89.2586],"সিরাজগঞ্জ":[24.4534,89.7006],"বগুড়া":[24.8510,89.3711],"জয়পুরহাট":[25.0968,89.0227],"নওগাঁ":[24.9132,88.7531],"খুলনা":[22.8456,89.5403],"যশোর":[23.1634,89.2182],"সাতক্ষীরা":[22.7185,89.0705],"বাগেরহাট":[22.6602,89.7895],"ঝিনাইদহ":[23.5448,89.1539],"চুয়াডাঙ্গা":[23.6407,88.8411],"কুষ্টিয়া":[23.9013,89.1204],"মেহেরপুর":[23.7623,88.6318],"মাগুরা":[23.4856,89.4198],"নড়াইল":[23.1725,89.5129],"বরিশাল":[22.7010,90.3535],"পটুয়াখালী":[22.3596,90.3299],"ভোলা":[22.6850,90.6482],"পিরোজপুর":[22.5795,89.9754],"বরগুনা":[22.1590,90.1250],"ঝালকাঠি":[22.6406,90.1987],"রংপুর":[25.7439,89.2752],"দিনাজপুর":[25.6217,88.6355],"ঠাকুরগাঁও":[26.0324,88.4616],"পঞ্চগড়":[26.3390,88.5650],"নীলফামারী":[25.9310,88.8560],"লালমনিরহাট":[25.9923,89.2847],"কুড়িগ্রাম":[25.8072,89.6295],"গাইবান্ধা":[25.3288,89.5280],"ময়মনসিংহ":[24.7471,90.4203],"জামালপুর":[24.9375,89.9370],"শেরপুর":[25.0200,90.0150],"নেত্রকোণা":[24.8702,90.7277],"ফরিদপুর ": [23.6071,89.8426]};
+  function escHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function toBn(n){ try{ return String(n).replace(/\d/g,function(d){return "০১২৩৪৫৬৭৮৯"[d];}); }catch(e){ return String(n); } }
+  function loadJSON(key, fb){ try{ var v=localStorage.getItem(key); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
+  function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+  function haversineKm(lat1, lon1, lat2, lon2){
+    var R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+    var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    return 2*R*Math.asin(Math.sqrt(a));
+  }
+  function fmtDist(km){
+    if(km==null || !isFinite(km)) return "দূরত্ব জানা নেই";
+    if(km<1) return "≈ "+toBn(Math.round(km*1000))+" মিটার দূরে";
+    return "≈ "+toBn(km.toFixed(km<10?1:0))+" কিমি দূরে";
+  }
+  function shopKeyOf(p){
+    if(typeof getShopKey==="function"){ try{ return getShopKey(p.shop, p.ownerUid); }catch(e){} }
+    return "shop:"+String(p.shop||"Smart Bazar").trim().toLowerCase();
+  }
+  // Buyer location: {lat,lng,district,source,ts} | Shop locations: {shopKey:{lat,lng,district,ts}}
+  var buyerLoc = loadJSON("sb_buyer_loc_v1", null);
+  var shopLocs = loadJSON("sb_shop_locations_v1", {});
+  function getProducts(){
+    try{ if(typeof PRODUCTS!=="undefined" && Array.isArray(PRODUCTS)) return PRODUCTS; }catch(e){}
+    try{ if(window.SB && Array.isArray(window.SB._products)) return window.SB._products; }catch(e){}
+    return [];
+  }
+  function uniqueShops(){
+    var map={}, out=[];
+    getProducts().forEach(function(p){
+      var key=shopKeyOf(p);
+      if(!map[key]){ map[key]=true; out.push({key:key, name:p.shop||"Smart Bazar", ownerUid:p.ownerUid||"", count:1, sample:p}); }
+      else { out.forEach(function(s){ if(s.key===key) s.count++; }); }
+    });
+    return out;
+  }
+  function shopLocationFor(shop){
+    if(shopLocs[shop.key]) return shopLocs[shop.key];
+    // If product itself carries lat/lng/district in future, use it
+    var p=shop.sample||{};
+    if(p.lat && p.lng) return {lat:Number(p.lat), lng:Number(p.lng), district:p.district||p.division||""};
+    if(p.latitude && p.longitude) return {lat:Number(p.latitude), lng:Number(p.longitude), district:p.district||""};
+    if(p.district && BD_DISTRICTS[p.district]) return {lat:BD_DISTRICTS[p.district][0], lng:BD_DISTRICTS[p.district][1], district:p.district, approx:true};
+    return null;
+  }
+  function fillDistrictSelects(){
+    ["nearbyDistrictSelect","vendorDistrictSelect"].forEach(function(id){
+      var sel=document.getElementById(id); if(!sel) return;
+      var cur=sel.value;
+      sel.innerHTML = '<option value="">— '+(id==="nearbyDistrictSelect"?"অথবা জেলা বেছে নিন":"দোকানের জেলা")+' —</option>';
+      Object.keys(BD_DISTRICTS).forEach(function(d){
+        if(d.trim()!==d) return; // skip duplicate key with space
+        var o=document.createElement("option"); o.value=d; o.textContent=d; sel.appendChild(o);
+      });
+      sel.value=cur;
+    });
+  }
+  function fillVendorShopSelect(){
+    var sel=document.getElementById("vendorShopSelect"); if(!sel) return;
+    var cur=sel.value; sel.innerHTML='<option value="">— আপনার দোকান —</option>';
+    uniqueShops().forEach(function(s){
+      var o=document.createElement("option"); o.value=s.key; o.textContent=s.name+" ("+toBn(s.count)+"টি পণ্য)"; sel.appendChild(o);
+    });
+    sel.value=cur;
+  }
+  function renderNearby(){
+    var statusEl=document.getElementById("nearbyStatus");
+    var listEl=document.getElementById("nearbyList");
+    if(!statusEl || !listEl) return;
+    fillVendorShopSelect();
+    var shops=uniqueShops();
+    var radius=Number(document.getElementById("nearbyRadiusSelect")?.value || 10);
+    var rows=shops.map(function(s){
+      var loc=shopLocationFor(s);
+      var dist=null;
+      if(buyerLoc && loc) dist=haversineKm(buyerLoc.lat, buyerLoc.lng, loc.lat, loc.lng);
+      return {shop:s, loc:loc, dist:dist};
+    });
+    // Sort: with distance first (nearest), then with location but far, then without location
+    rows.sort(function(a,b){
+      if(a.dist!=null && b.dist!=null) return a.dist-b.dist;
+      if(a.dist!=null) return -1; if(b.dist!=null) return 1;
+      if(a.loc && !b.loc) return -1; if(!a.loc && b.loc) return 1;
+      return b.shop.count-a.shop.count;
+    });
+    var visible = rows.filter(function(r){
+      if(!buyerLoc) return true; // no location yet: show all, nearest unknown
+      if(radius===0) return true;
+      if(r.dist==null) return true; // keep shops without location visible, at bottom
+      return r.dist<=radius;
+    });
+    var withDist = rows.filter(function(r){ return r.dist!=null && (radius===0 || r.dist<=radius); });
+    if(!buyerLoc){
+      statusEl.textContent="লোকেশন চালু করলে কাছের দোকান আগে দেখাবে। এখন সব অনুমোদিত দোকান দেখানো হচ্ছে।";
+    } else if(withDist.length===0){
+      statusEl.textContent="এই দূরত্বের মধ্যে লোকেশন দেওয়া কোনো দোকান পাওয়া যায়নি। দূরত্ব বাড়িয়ে দেখুন অথবা পুরো বাংলাদেশ বেছে নিন।";
+    } else {
+      var src = buyerLoc.district ? ("আপনার এলাকা: "+buyerLoc.district+" • ") : "";
+      statusEl.textContent=src+toBn(withDist.length)+"টি কাছের অনুমোদিত দোকান পাওয়া গেছে। সবচেয়ে কাছেরটা সবার উপরে।";
+    }
+    listEl.innerHTML="";
+    if(visible.length===0){
+      var e=document.createElement("div"); e.className="nearby-status"; e.textContent="কোনো দোকান পাওয়া যায়নি।"; listEl.appendChild(e); return;
+    }
+    visible.forEach(function(r){
+      var card=document.createElement("div"); card.className="nearby-card";
+      var locText = r.loc ? (r.loc.district ? escHtml(r.loc.district) : "লোকেশন সেভ করা") + (r.loc.approx ? " (জেলা কেন্দ্র)" : "") : "দোকানের লোকেশন এখনো দেওয়া হয়নি";
+      var distCls = r.dist==null ? "dist unknown" : (r.dist<=5 ? "dist" : "dist far");
+      var distTxt = r.dist==null ? "দূরত্ব জানা নেই" : fmtDist(r.dist);
+      card.innerHTML='<div><b>🏪 '+escHtml(r.shop.name)+'</b> <span style="color:#059669;font-weight:700">✅ অনুমোদিত</span><br><small>'+locText+' • '+toBn(r.shop.count)+'টি পণ্য</small><br><button type="button" class="shop-btn" data-shop-name="'+escHtml(r.shop.name)+'">এই দোকানের পণ্য দেখুন →</button></div><span class="'+distCls+'">'+distTxt+'</span>';
+      var btn=card.querySelector(".shop-btn");
+      btn.addEventListener("click", function(){
+        var inp=document.getElementById("productSearch"); if(inp){ inp.value=r.shop.name; inp.dispatchEvent(new Event("input",{bubbles:true})); }
+        if(typeof renderProducts==="function"){ try{ renderProducts(); }catch(e){} }
+        var grid=document.getElementById("productGrid"); if(grid) grid.scrollIntoView({behavior:"smooth", block:"start"});
+      });
+      listEl.appendChild(card);
+    });
+  }
+  function useBuyerLoc(lat, lng, district, source){
+    buyerLoc={lat:Number(lat), lng:Number(lng), district:district||"", source:source||"gps", ts:Date.now()};
+    saveJSON("sb_buyer_loc_v1", buyerLoc);
+    var sel=document.getElementById("nearbyDistrictSelect"); if(district && sel) sel.value=district;
+    renderNearby();
+  }
+  function requestGps(){
+    var statusEl=document.getElementById("nearbyStatus");
+    if(!("geolocation" in navigator)){
+      if(statusEl) statusEl.textContent="এই ব্রাউজারে GPS লোকেশন সাপোর্ট করে না। জেলা বেছে নিয়ে ব্যবহার করুন।";
+      return;
+    }
+    if(statusEl) statusEl.textContent="📍 লোকেশন নেওয়া হচ্ছে... অনুমতি চাইলে Allow দিন।";
+    navigator.geolocation.getCurrentPosition(function(pos){
+      useBuyerLoc(pos.coords.latitude, pos.coords.longitude, "", "gps");
+    }, function(err){
+      if(statusEl) statusEl.textContent="লোকেশন পাওয়া যায়নি ("+(err&&err.message?err.message:"অনুমতি দেওয়া হয়নি")+"). জেলা বেছে নিয়ে ব্যবহার করুন।";
+    }, {enableHighAccuracy:true, timeout:15000, maximumAge:60000});
+  }
+  function bind(){
+    fillDistrictSelects();
+    var locBtn=document.getElementById("nearbyLocBtn"); if(locBtn) locBtn.addEventListener("click", requestGps);
+    var refresh=document.getElementById("nearbyRefreshBtn"); if(refresh) refresh.addEventListener("click", renderNearby);
+    var radius=document.getElementById("nearbyRadiusSelect"); if(radius) radius.addEventListener("change", renderNearby);
+    var distSel=document.getElementById("nearbyDistrictSelect");
+    if(distSel) distSel.addEventListener("change", function(){
+      var d=this.value; if(!d) return;
+      var c=BD_DISTRICTS[d]; if(c) useBuyerLoc(c[0], c[1], d, "district");
+    });
+    var vGps=document.getElementById("vendorSaveGpsBtn");
+    if(vGps) vGps.addEventListener("click", function(){
+      var key=document.getElementById("vendorShopSelect").value;
+      var st=document.getElementById("vendorLocStatus");
+      if(!key){ if(st) st.textContent="আগে আপনার দোকান বেছে নিন।"; return; }
+      if(!("geolocation" in navigator)){ if(st) st.textContent="এই ব্রাউজারে GPS নেই। জেলা দিয়ে সেভ করুন।"; return; }
+      if(st) st.textContent="📍 দোকানের GPS লোকেশন নেওয়া হচ্ছে...";
+      navigator.geolocation.getCurrentPosition(function(pos){
+        var d=document.getElementById("vendorDistrictSelect").value||"";
+        shopLocs[key]={lat:pos.coords.latitude, lng:pos.coords.longitude, district:d, ts:Date.now()};
+        saveJSON("sb_shop_locations_v1", shopLocs);
+        if(st) st.textContent="✅ দোকানের লোকেশন সেভ হয়েছে। এখন থেকে আপনার এলাকার ক্রেতারা আপনাকে কাছের দোকান হিসেবে দেখবে।";
+        renderNearby();
+      }, function(){ if(st) st.textContent="GPS লোকেশন পাওয়া যায়নি। অনুমতি দিন অথবা জেলা দিয়ে সেভ করুন।"; }, {enableHighAccuracy:true, timeout:15000});
+    });
+    var vDist=document.getElementById("vendorSaveDistrictBtn");
+    if(vDist) vDist.addEventListener("click", function(){
+      var key=document.getElementById("vendorShopSelect").value;
+      var d=document.getElementById("vendorDistrictSelect").value;
+      var st=document.getElementById("vendorLocStatus");
+      if(!key){ if(st) st.textContent="আগে আপনার দোকান বেছে নিন।"; return; }
+      if(!d){ if(st) st.textContent="আগে দোকানের জেলা বেছে নিন।"; return; }
+      var c=BD_DISTRICTS[d];
+      shopLocs[key]={lat:c[0], lng:c[1], district:d, approx:true, ts:Date.now()};
+      saveJSON("sb_shop_locations_v1", shopLocs);
+      if(st) st.textContent="✅ "+d+" জেলা দিয়ে দোকানের লোকেশন সেভ হয়েছে।";
+      renderNearby();
+    });
+    // Re-render when remote products arrive
+    if(window.SB && window.SB.setRemote){
+      var orig=window.SB.setRemote;
+      window.SB.setRemote=function(list){ orig(list); setTimeout(renderNearby, 100); };
+    }
+    renderNearby();
+    // If buyer already allowed before, show nearby immediately
+    if(buyerLoc && buyerLoc.district){
+      var sel=document.getElementById("nearbyDistrictSelect"); if(sel) sel.value=buyerLoc.district;
+    }
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+  window.SB_NEARBY = { render: renderNearby, requestGps: requestGps };
+})();
+</script>
+
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
 </html>
+
 
