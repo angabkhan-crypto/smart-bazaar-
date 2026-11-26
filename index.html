@@ -1061,6 +1061,13 @@
       font-size: 0.85rem;
     }
   </style>
+  <meta name="theme-color" content="#0f766e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Smart Bazar">
+  <link rel="manifest" id="sbManifestLink" href="manifest.json">
+  <link rel="apple-touch-icon" href="smart-bazar-banner.jpg">
+  <link rel="icon" href="smart-bazar-banner.jpg">
 </head>
 <body>
   <template id="sbLogoTemplate">
@@ -5019,13 +5026,59 @@ function sbRenderRiders(){
   if(!list.length){ box.innerHTML="<span style='font-size:.84rem;color:#64748b'>এখনো কোনো রাইডার যোগ করা হয়নি।</span>"; return; }
   box.innerHTML=list.map(function(r,i){ return "<span class='rider-chip'>🛵 "+esc2(r.name)+" — "+esc2(r.phone)+" ("+esc2(r.area||"চান্দনা")+") <button type='button' data-del-rider='"+i+"' style='border:none;background:none;cursor:pointer'>✕</button></span>"; }).join("");
 }
+
+/* ===== Merchant Offer Control (Chandna 500->50, 1000->100 editable) ===== */
+function sbGetOffers(){ try{ var v=JSON.parse(localStorage.getItem("sb_offer_rules")||"null"); if(Array.isArray(v)&&v.length) return v; }catch(e){} return [{min:500,disc:50,on:true,area:"চান্দনা"},{min:1000,disc:100,on:true,area:"চান্দনা"}]; }
+function sbSaveOffers(rules){ try{ localStorage.setItem("sb_offer_rules", JSON.stringify(rules)); }catch(e){} }
+function sbOfferDiscount(subTotal){ var rules=sbGetOffers(); var best=0, bestRule=null; rules.forEach(function(r){ if(!r.on) return; if(subTotal>=(+r.min||0)){ var d=Math.min(+r.disc||0, subTotal); if(d>best){ best=d; bestRule=r; } } }); return {discount:best, rule:bestRule}; }
+function sbOfferText(){ var rules=sbGetOffers().filter(function(r){return r.on;}); if(!rules.length) return ""; return rules.map(function(r){ return "৳ "+r.min+"+ অর্ডারে ৳ "+r.disc+" ছাড়"; }).join(" • "); }
+function sbInjectOfferSettings(){
+  var box=$("ordersBox"); if(!box || $("offerControlBox")) return;
+  var div=document.createElement("section"); div.className="form-card"; div.id="offerControlBox";
+  div.style.cssText="border-color:#fbbf24;background:#fffbeb";
+  function rowHTML(r,i){ return "<div style='display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px;background:#fff;border:1px solid #fde68a;border-radius:10px'>"
+    +"<label style='font-size:.8rem'>অর্ডার ৳ <input type='number' data-offer-min='"+i+"' value='"+(r.min||0)+"' min='0' style='width:90px;padding:6px;border-radius:8px;border:1px solid #ddd'></label>"
+    +"<label style='font-size:.8rem'>হলে ছাড় ৳ <input type='number' data-offer-disc='"+i+"' value='"+(r.disc||0)+"' min='0' style='width:80px;padding:6px;border-radius:8px;border:1px solid #ddd'></label>"
+    +"<label style='font-size:.8rem'><input type='checkbox' data-offer-on='"+i+"' "+(r.on?"checked":"")+"> চালু</label>"
+    +"<button type='button' data-del-offer='"+i+"' style='border:none;background:#fee2e2;color:#b91c1c;border-radius:8px;padding:6px 10px;cursor:pointer'>✕ মুছুন</button></div>"; }
+  function render(){
+    var rules=sbGetOffers();
+    div.innerHTML="<h3 style='margin:0'>🎁 ছাড়ের অফার কন্ট্রোল — ব্যবসায়ী ড্যাশবোর্ড</h3>"
+    +"<p style='font-size:.85rem;color:#475569;margin:6px 0'>চান্দনায় অর্ডারে অটো ছাড়। দাম কমলে/বাড়লে এখান থেকে ছাড় কমিয়ে/বাড়িয়ে দিন — সাথে সাথে কাস্টমারের কার্টে বদলে যাবে। কুপন লাগবে না।</p>"
+    +"<div id='offerRows'>"+rules.map(rowHTML).join("")+"</div>"
+    +"<div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px'>"
+    +"<button type='button' id='addOfferBtn' style='background:#fff;border:1px solid #f59e0b;border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer'>＋ নতুন অফার যোগ করুন</button>"
+    +"<button type='button' id='saveOfferBtn' style='background:#f59e0b;color:#fff;border:none;border-radius:999px;padding:8px 16px;font-weight:800;cursor:pointer'>💾 সেভ করুন</button>"
+    +"<button type='button' id='resetOfferBtn' style='background:#fff;border:1px solid #ddd;border-radius:999px;padding:8px 14px;cursor:pointer'>↩ ডিফল্ট (৫০০→৫০, ১০০০→১০০)</button></div>"
+    +"<div id='offerMsg' style='font-size:.85rem;color:#065f46;margin-top:6px'></div>"
+    +"<div style='font-size:.85rem;background:#fff;padding:8px;border-radius:8px;margin-top:8px'>👀 কাস্টমার এখন দেখবে: <b id='offerPreview'></b></div>";
+    var pv=div.querySelector("#offerPreview"); if(pv) pv.textContent=sbOfferText()||"কোনো অফার চালু নেই";
+  }
+  render();
+  box.parentNode.insertBefore(div, box);
+  div.addEventListener("click", function(e){
+    if(e.target.closest("#addOfferBtn")){ var r=sbGetOffers(); r.push({min:1500,disc:150,on:true,area:"চান্দনা"}); sbSaveOffers(r); render(); }
+    if(e.target.closest("#saveOfferBtn")){
+      var rules=[]; div.querySelectorAll("[data-offer-min]").forEach(function(inp){
+        var i=+inp.getAttribute("data-offer-min");
+        rules[i]={min:+div.querySelector("[data-offer-min='"+i+"']").value||0, disc:+div.querySelector("[data-offer-disc='"+i+"']").value||0, on:!!div.querySelector("[data-offer-on='"+i+"']").checked, area:"চান্দনা"};
+      });
+      sbSaveOffers(rules); render(); var m=div.querySelector("#offerMsg"); if(m) m.textContent="✅ সেভ হয়ে গেছে! এখন কাস্টমারের কার্টে নতুন ছাড় দেখা যাবে।";
+      try{ if(typeof renderCart==="function") renderCart(); }catch(err){}
+    }
+    if(e.target.closest("#resetOfferBtn")){ sbSaveOffers([{min:500,disc:50,on:true,area:"চান্দনা"},{min:1000,disc:100,on:true,area:"চান্দনা"}]); render(); }
+    var del=e.target.closest("[data-del-offer]"); if(del){ var r=sbGetOffers(); r.splice(+del.getAttribute("data-del-offer"),1); sbSaveOffers(r); render(); }
+  });
+  setTimeout(function(){ var feat=$("homeFeaturedTitle"); if(feat && !$("offerHomeBanner")){ var b=document.createElement("div"); b.id="offerHomeBanner"; b.style.cssText="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:10px;margin:10px 0;font-size:.9rem;text-align:center"; b.innerHTML="🎁 <b>চান্দনা অফার:</b> <span id='offerHomeText'></span>"; feat.parentNode.insertBefore(b, feat); var ht=$("offerHomeText"); if(ht) ht.textContent=sbOfferText()||"এখন কোনো অফার নেই"; } }, 800);
+}
 function sbInjectCoupon(){
   var bill=$("billSummaryBox"); if(!bill || $("couponInput")) return;
   var div=document.createElement("div");
   div.innerHTML="<div style='margin-top:12px'><div><button type='button' class='coupon-chip' data-coupon='CHANDNA50'>🎟️ CHANDNA50 — ৫০ টাকা ছাড়</button><button type='button' class='coupon-chip' data-coupon='SMART100'>🎟️ SMART100 — ১০০ টাকা ছাড় (১০০০+)</button><button type='button' class='coupon-chip' data-coupon='FREEDEL'>🎟️ FREEDEL — ডেলিভারি ফ্রি</button></div>"+
     "<div class='coupon-box'><input type='text' id='couponInput' placeholder='কুপন কোড লিখুন — যেমন CHANDNA50'><button type='button' class='coupon-btn' id='applyCouponBtn'>লাগান</button></div><div class='coupon-msg' id='couponMsg'></div>"+
     "<div class='bill-line' id='flashDiscountRow' style='display:none'><span>⚡ ফ্ল্যাশ সেল ছাড় (৫%):</span><strong id='flashDiscountText' style='color:#dc2626'>− ৳ ০</strong></div>"+
-    "<div class='bill-line' id='couponDiscountRow' style='display:none'><span>🎟️ কুপন ছাড় (<span id='couponCodeLabel'></span>):</span><strong id='couponDiscountText' style='color:#065f46'>− ৳ ০</strong></div></div>";
+    "<div class='bill-line' id='offerDiscountRow' style='display:none'><span>🎁 চান্দনা অফার ছাড়:</span><strong id='offerDiscountText' style='color:#b45309'>− ৳ ০</strong></div>"+
+     "<div class='bill-line' id='couponDiscountRow' style='display:none'><span>🎟️ কুপন ছাড় (<span id='couponCodeLabel'></span>):</span><strong id='couponDiscountText' style='color:#065f46'>− ৳ ০</strong></div></div>";
   bill.appendChild(div);
 }
 function sbInjectVoice(){
@@ -5046,16 +5099,17 @@ function sbApplyCartAdjustments(){
     var delivInfo=getCartVendorDeliveryBreakdown(); var deliv=delivInfo.totalFee||0;
     var loc=sbLocationOffer(SB_LOCATION2, sub); if(loc.free) deliv=0;
     var flash=sbFlashDiscount(sub); if(sbIsFlashActive()) deliv=0;
-    var cp=sbCouponDiscount(sub, deliv); deliv=cp.delivFee; var disc=cp.discount||0;
+    var cp=sbCouponDiscount(sub, deliv); deliv=cp.delivFee; var disc=cp.discount||0; var off=sbOfferDiscount(sub); var offerDisc=off.discount||0; disc+=offerDisc;
     var grand=Math.max(0, sub+deliv-disc-flash);
     var gt=$("grandTotalText"); if(gt) gt.textContent="৳ "+fmt2(grand);
     var dt=$("deliveryFeeText"); if(dt) dt.textContent= deliv>0 ? "৳ "+fmt2(deliv) : (typeof t==="function"? t("deliveryFree") : "ফ্রি");
     var fr=$("flashDiscountRow"); if(fr){ fr.style.display=flash>0?"flex":"none"; var ft=$("flashDiscountText"); if(ft) ft.textContent="− ৳ "+fmt2(flash); }
     var cr=$("couponDiscountRow"); if(cr){ cr.style.display=disc>0?"flex":"none"; var cl=$("couponCodeLabel"); if(cl) cl.textContent=SB_COUPON2||""; var cd=$("couponDiscountText"); if(cd) cd.textContent="− ৳ "+fmt2(disc); }
-    var bar=$("cartBarTotal"); if(bar) bar.textContent="৳ "+fmt2(grand)+" →";
+    var orow=$("offerDiscountRow"); if(orow){ orow.style.display=offerDisc>0?"flex":"none"; var ot=$("offerDiscountText"); if(ot) ot.textContent="− ৳ "+fmt2(offerDisc); }
+     var bar=$("cartBarTotal"); if(bar) bar.textContent="৳ "+fmt2(grand)+" →";
     var hb=$("homeCartBarTotal"); if(hb) hb.textContent="৳ "+fmt2(grand)+" →";
     // store for order submit: patch grandTotal via hidden field? order submit uses its own calc - we patch by storing on window
-    window.SB_ADJ={sub:sub, deliv:deliv, coupon:disc, flash:flash, grand:grand};
+    window.SB_ADJ={sub:sub, deliv:deliv, coupon:disc, flash:flash, grand:grand, offer:offerDisc};
   }catch(e){}
 }
 /* Wrap renderCart */
@@ -5279,7 +5333,46 @@ setTimeout(sbInitAddons, 1500);
 })();
 </script>
 
+
+<script>
+/* ===== Smart Bazar PWA ALL-IN-ONE - manifest + SW + Install inside this single index.html ===== */
+(function(){
+"use strict";
+try{
+  var manifest={name:"Smart Bazar - মাঠ বাজার",short_name:"Smart Bazar",description:"চান্দনার অনলাইন বাজার",start_url:"./index.html",scope:"./",display:"standalone",orientation:"portrait",background_color:"#0f766e",theme_color:"#0f766e",lang:"bn",icons:[{src:"smart-bazar-banner.jpg",sizes:"512x512",type:"image/jpeg",purpose:"any"},{src:"smart-bazar-banner.jpg",sizes:"192x192",type:"image/jpeg",purpose:"any"}]};
+  var blob=new Blob([JSON.stringify(manifest)],{type:"application/json"});
+  var link=document.getElementById("sbManifestLink"); if(link) link.href=URL.createObjectURL(blob);
+}catch(e){}
+var deferredPrompt=null;
+window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferredPrompt=e; var b=document.getElementById("pwaInstallBtn"); if(b) b.style.display="inline-flex"; });
+window.addEventListener("appinstalled", function(){ var b=document.getElementById("pwaInstallBtn"); if(b) b.style.display="none"; alert("✅ Smart Bazar অ্যাপ ইনস্টল হয়ে গেছে!"); });
+document.addEventListener("click", function(e){
+  if(e.target.closest && e.target.closest("#pwaInstallBtn")){
+    var btn=e.target.closest("#pwaInstallBtn");
+    if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){ deferredPrompt=null; btn.style.display="none"; }); return; }
+    alert("📱 অ্যাপ বানানোর নিয়ম:\n\nAndroid (Chrome): উপরে ⋮ মেনু → Add to Home screen / Install app\n\niPhone (Safari): নিচে Share ⬆️ → Add to Home Screen");
+  }
+  if(e.target.closest && e.target.closest("#pwaShareBtn")){
+    var url=location.href;
+    if(navigator.share){ navigator.share({title:"Smart Bazar - মাঠ বাজার", text:"চান্দনার অনলাইন বাজার", url:url}).catch(function(){}); }
+    else { try{ navigator.clipboard.writeText(url); alert("🔗 লিংক কপি হয়ে গেছে!"); }catch(err){ alert("লিংক: "+url); } }
+  }
+});
+try{
+  var swCode=['var CACHE="smart-bazar-v1";','var CORE=["./","./index.html","./manifest.json","./smart-bazar-banner.jpg"];','self.addEventListener("install",function(e){e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(CORE);}).catch(function(){}));self.skipWaiting();});','self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(keys){return Promise.all(keys.map(function(k){if(k!==CACHE) return caches.delete(k);}));}));self.clients.claim();});','self.addEventListener("fetch",function(e){if(e.request.method!=="GET")return;e.respondWith(fetch(e.request).then(function(res){var cp=res.clone();caches.open(CACHE).then(function(c){c.put(e.request,cp);});return res;}).catch(function(){return caches.match(e.request).then(function(h){return h||caches.match("./index.html");});}));});'].join("\n");
+  if("serviceWorker" in navigator){ window.addEventListener("load", function(){ var swBlob=new Blob([swCode],{type:"text/javascript"}); navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); }); }); }
+}catch(e){}
+setTimeout(function(){
+  try{ sbInjectOfferSettings(); }catch(err){}
+  if(document.getElementById("pwaInstallBtn")) return;
+  var head=document.querySelector(".header") || document.querySelector("header"); if(!head) return;
+  var div=document.createElement("div"); div.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px";
+  div.innerHTML='<button type="button" id="pwaInstallBtn" style="background:#fff;color:#0f172a;border:none;border-radius:999px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:.9rem">📲 অ্যাপ ইনস্টল করুন (ফ্রি)</button><button type="button" id="pwaShareBtn" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:.9rem">🔗 শেয়ার করুন</button>';
+  head.appendChild(div);
+}, 900);
+})();
+</script>
+
 <script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
 </html>
-
 
