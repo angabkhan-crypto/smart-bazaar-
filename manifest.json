@@ -1,17 +1,1 @@
-{
-  "name": "Smart Bazar - মাঠ বাজার",
-  "short_name": "Smart Bazar",
-  "description": "চান্দনার অনলাইন বাজার - চাল, ডাল, সবজি, গ্যাজেট সব এক জায়গায়",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0f766e",
-  "theme_color": "#0f766e",
-  "lang": "bn",
-  "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
-  ]
-}
-  
+
