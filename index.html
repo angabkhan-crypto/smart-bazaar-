@@ -1080,17 +1080,17 @@
     .nearby-card .shop-btn{margin-top:8px;padding:7px 11px;border-radius:8px;border:1px solid #0f766e;background:#0f766e;color:#fff;font-weight:700;cursor:pointer}
     .vendor-loc-box{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;font-size:.88rem}
     .vendor-loc-box summary{cursor:pointer;font-weight:800}
-  
-    /* ---- Logo beside name, compact header ---- */
-    #home .brand-row{display:flex;align-items:center;justify-content:center;gap:10px}
-    #home .brand-row h1{margin:0;font-size:1.9rem;line-height:1.1}
-    .sb-main-logo{width:56px;height:56px;object-fit:cover;flex:0 0 auto;display:block;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
-    .home-hero-banner img{max-height:360px;object-fit:cover}
+    .sb-qr-card{background:#fff;border:1px solid #bfdbfe;border-radius:12px;padding:12px;margin-top:12px}
+    .sb-qr-card img{width:180px;height:180px;background:#fff;border:1px solid #e2e8f0;border-radius:8px}
+    .sb-qr-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+      .sb-main-logo{width:56px;height:56px;object-fit:cover;flex:0 0 auto;display:block;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+      .edit-price-btn{background:#0f766e;color:#fff;border:1px solid #0f766e;border-radius:8px;padding:6px 10px;cursor:pointer;margin-right:6px}
   </style>
 </head>
 <body>
-  <!-- Single basket logo, home only -->
-  <template id="sbLogoTemplate"></template>
+  <template id="sbLogoTemplate">
+    <span aria-hidden="true" style="font-size:1.3rem;line-height:1">🛍️</span>
+  </template>
 
   <template id="sbLangSwitchTemplate">
     <div class="lang-switch-bar" role="group" aria-label="Language Switcher">
@@ -1117,16 +1117,6 @@
       />
     </div>
     <main class="main-container">
-      <section class="hero-card">
-        <h2 id="homeHeroTitle">সবকিছু এক প্ল্যাটফর্মে</h2>
-        <p class="description" id="homeHeroDesc">ক্রেতা হিসেবে খুচরা বা পাইকারি পণ্য কিনুন, অথবা নিজের দোকান নিবন্ধন করে ব্যবসা পরিচালনা করুন।</p>
-        <div class="hero-actions">
-          <a class="btn" id="homeShopBtn" href="#customer">🛒 কেনাকাটা শুরু করুন</a>
-          <a class="btn vendor" id="homeVendorBtn" href="#business">🏪 ব্যবসায়ী আবেদন</a>
-          <a class="btn track" id="homeOrdersBtn" href="#myOrders">📋 আমার অর্ডার</a>
-          <a class="btn secondary" id="homeDashBtn" href="#dashboard">🔐 ড্যাশবোর্ড</a>
-        </div>
-      </section>
       <div class="ticker-wrap">
         <span class="ticker-badge" id="tickerBadge">ঘোষণা</span>
         <div class="ticker-marquee">
@@ -1142,7 +1132,16 @@
         <div class="fav-shops-list" id="homeFavShopsList"></div>
       </section>
 
-      
+      <section class="hero-card">
+        <h2 id="homeHeroTitle">সবকিছু এক প্ল্যাটফর্মে</h2>
+        <p class="description" id="homeHeroDesc">ক্রেতা হিসেবে খুচরা বা পাইকারি পণ্য কিনুন, অথবা নিজের দোকান নিবন্ধন করে ব্যবসা পরিচালনা করুন।</p>
+        <div class="hero-actions">
+          <a class="btn" id="homeShopBtn" href="#customer">🛒 কেনাকাটা শুরু করুন</a>
+          <a class="btn vendor" id="homeVendorBtn" href="#business">🏪 ব্যবসায়ী আবেদন</a>
+          <a class="btn track" id="homeOrdersBtn" href="#myOrders">📋 আমার অর্ডার</a>
+          <a class="btn secondary" id="homeDashBtn" href="#dashboard">🔐 ড্যাশবোর্ড</a>
+        </div>
+      </section>
 
       <h3 class="sec-title" id="homeFeaturedTitle">✨ নির্বাচিত পণ্যসমূহ</h3>
       <div id="homeFeaturedGrid" class="product-grid"></div>
@@ -1532,6 +1531,19 @@
           <h4 id="vendorShopSettingsTitle">🏪 আমার নিজস্ব দোকান, ডেলিভারি চার্জ ও পেমেন্ট ওয়ালেট</h4>
           <div id="myShopLinkBox" style="font-size:.86rem;color:#334155;margin-bottom:8px;word-break:break-all"></div>
           <button type="button" class="copy-btn" id="copyMyShopLinkBtn">🔗 দোকানের লিঙ্ক কপি করুন</button>
+          <div class="sb-qr-card" id="vendorQrCard">
+            <h4 style="margin:0 0 6px">📷 আমার দোকানের QR কোড</h4>
+            <p style="font-size:.86rem;color:#475569;margin:0 0 10px">স্ক্যান করলে শুধু এই দোকানের পণ্য খুলবে। প্রিন্ট করে দোকানে টাঙাতে পারবেন।</p>
+            <img id="vendorQrImg" alt="Vendor shop QR code" style="display:none">
+            <div id="vendorQrLinkText" style="font-size:.82rem;color:#334155;word-break:break-all;margin-top:8px"></div>
+            <div class="sb-qr-actions">
+              <button type="button" class="copy-btn" id="vendorQrCopyBtn">🔗 লিঙ্ক কপি</button>
+              <button type="button" class="copy-btn" id="vendorQrShareBtn">📤 শেয়ার / পাবলিশ</button>
+              <button type="button" class="copy-btn" id="vendorQrDownloadBtn">⬇️ ডাউনলোড</button>
+              <button type="button" class="copy-btn" id="vendorQrPrintBtn">🖨️ প্রিন্ট</button>
+            </div>
+            <div id="vendorQrMsg" style="font-size:.85rem;color:#065f46;font-weight:700;margin-top:8px;display:none"></div>
+          </div>
 
           <label style="margin-top:12px;font-size:.9rem" id="vendorDelivLabel">🚚 আমার দোকানের ডেলিভারি চার্জ (৳ — ০ দিলে ফ্রি ডেলিভারি)</label>
           <div class="setting-row">
@@ -1724,7 +1736,11 @@
 <script>
 (function () {
   var logoTpl = document.getElementById("sbLogoTemplate");
-  /* Single logo: do NOT inject logo into every header. */
+  if (logoTpl && logoTpl.content) {
+    document.querySelectorAll("[data-logo-slot]").forEach(function (slot) {
+      slot.insertBefore(logoTpl.content.cloneNode(true), slot.firstChild);
+    });
+  }
 
   var langTpl = document.getElementById("sbLangSwitchTemplate");
   if (langTpl && langTpl.content) {
@@ -2347,8 +2363,41 @@ function loadFavoriteShops() {
 
 var FAVORITE_SHOPS = loadFavoriteShops();
 
+var SB_FAV_SYNCING = false;
+function syncFavoritesToAccount(){
+  try{
+    if(window.SB && window.SB._firebase && window.SB._firebase.auth && window.SB._firebase.auth.currentUser){
+      var u = window.SB._firebase.auth.currentUser;
+      if(window.SB._firebase.db){
+        window.SB._firebase.db.collection("favorites").doc(u.uid).set({shops: FAVORITE_SHOPS, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}).catch(function(){});
+      }
+    }
+  }catch(e){}
+}
+async function loadFavoritesFromAccount(){
+  try{
+    if(window.SB && window.SB._firebase && window.SB._firebase.auth && window.SB._firebase.auth.currentUser && window.SB._firebase.db){
+      var u = window.SB._firebase.auth.currentUser;
+      var d = await window.SB._firebase.db.collection("favorites").doc(u.uid).get();
+      if(d.exists && Array.isArray(d.data().shops) && d.data().shops.length){
+        SB_FAV_SYNCING = true;
+        FAVORITE_SHOPS = d.data().shops;
+        try{ localStorage.setItem("sb_favorite_shops_v1", JSON.stringify(FAVORITE_SHOPS)); }catch(e){}
+        renderFavoriteShopsBar();
+        SB_FAV_SYNCING = false;
+      }
+    }
+  }catch(e){}
+}
 function saveFavoriteShops(list) {
   FAVORITE_SHOPS = list;
+  if(!SB_FAV_SYNCING) syncFavoritesToAccount();
+  try {
+    if (typeof currentSession !== "undefined" && currentSession && currentSession.uid
+        && window.SB && typeof window.SB.saveFavorites === "function") {
+      window.SB.saveFavorites(currentSession.uid, FAVORITE_SHOPS).catch(function () {});
+    }
+  } catch (e) {}
   try {
     localStorage.setItem("sb_favorite_shops_v1", JSON.stringify(FAVORITE_SHOPS));
   } catch (e) {}
@@ -2412,6 +2461,13 @@ function openFavoriteShopFilter(shopObj) {
   showPage();
 }
 
+function applyShopQueryFromUrl(){
+  try{
+    var q = new URLSearchParams(location.search).get("shop");
+    if(q){ filterShopUid = q; state.query=""; state.cat="সব"; }
+  }catch(e){}
+}
+applyShopQueryFromUrl();
 function renderFavoriteShopsBar() {
   var targets = [
     { titleId: "homeFavTitle", badgeId: "homeFavCountBadge", listId: "homeFavShopsList" },
@@ -3712,7 +3768,14 @@ document.getElementById("orderForm").addEventListener("submit", async function (
       });
     });
 
+    var orderVendorUids = [];
+    cart.forEach(function (c) {
+      var ou = c.ownerUid || "admin";
+      if (orderVendorUids.indexOf(ou) === -1) orderVendorUids.push(ou);
+    });
     var orderPayload = {
+      vendorUids: orderVendorUids,
+      customerUid: (typeof currentSession !== "undefined" && currentSession && currentSession.uid) ? currentSession.uid : "",
       orderCode: orderCode,
       customerName: customerName,
       customerPhone: cleanPhone,
@@ -4235,7 +4298,28 @@ var renderDashboardOrders = null;
       div.innerHTML =
         "<div><b>" + esc(em) + " " + esc(displayProdName(p)) + "</b>" +
         "<small>" + esc(labelCat(p.cat)) + " · ৳ " + fmtNum(p.retail) + " / ৳ " + fmtNum(p.wholesale) + " (" + esc(displayProdUnit(p)) + ")</small></div>" +
-        "<div class='btns'><button type='button' class='del-btn' data-del-id='" + esc(p.id) + "'>" + (CURRENT_LANG === "en" ? "Delete" : "মুছুন") + "</button></div>";
+        "<div class='btns'><button type='button' class='edit-price-btn' data-edit-id='" + esc(p.id) + "'>" + (CURRENT_LANG === "en" ? "Change Price" : "দাম বদলান") + "</button><button type='button' class='del-btn' data-del-id='" + esc(p.id) + "'>" + (CURRENT_LANG === "en" ? "Delete" : "মুছুন") + "</button></div>";
+      div.querySelector("[data-edit-id]").addEventListener("click", async function () {
+        var newRetail = prompt(CURRENT_LANG === "en" ? "New retail price:" : "নতুন খুচরা দাম (৳):", String(p.retail || ""));
+        if (newRetail === null) return;
+        var newWholesale = prompt(CURRENT_LANG === "en" ? "New wholesale price:" : "নতুন পাইকারি দাম (৳):", String(p.wholesale || ""));
+        if (newWholesale === null) return;
+        var r = Number(newRetail), w = Number(newWholesale);
+        if (!r || r <= 0 || !w || w <= 0) { alert(CURRENT_LANG === "en" ? "Please enter valid prices." : "সঠিক দাম দিন।"); return; }
+        try {
+          if (typeof window.SB.updateRemoteProduct === "function") {
+            await window.SB.updateRemoteProduct(p.id, { retail: r, wholesale: w });
+          } else {
+            var nextRemote = REMOTE.map(function (item) { return item.id === p.id ? Object.assign({}, item, { retail: r, wholesale: w }) : item; });
+            localStorage.setItem("sb_demo_remote_products", JSON.stringify(nextRemote));
+            window.SB.setRemote(nextRemote);
+          }
+          alert(CURRENT_LANG === "en" ? "Price updated." : "দাম বদলে গেছে ✅");
+        } catch (e) {
+          alert(CURRENT_LANG === "en" ? "Price update failed. Please try again." : "দাম বদলানো যায়নি। আবার চেষ্টা করুন।");
+        }
+        renderMyProductsList();
+      });
       div.querySelector("[data-del-id]").addEventListener("click", async function () {
         var idToDel = this.getAttribute("data-del-id");
         if (typeof window.SB.deleteRemoteProduct === "function") {
@@ -4349,8 +4433,63 @@ var renderDashboardOrders = null;
     };
   }
 
+  async function syncFavoritesFromCloud() {
+    try {
+      if (!currentSession || !currentSession.uid) return;
+      if (!window.SB || typeof window.SB.loadFavorites !== "function") return;
+      var remote = await window.SB.loadFavorites(currentSession.uid);
+      if (Array.isArray(remote) && remote.length > 0) {
+        FAVORITE_SHOPS = remote;
+        try { localStorage.setItem("sb_favorite_shops_v1", JSON.stringify(FAVORITE_SHOPS)); } catch (e) {}
+        renderFavoriteShopsBar();
+        if (typeof renderProducts === "function") renderProducts();
+      }
+    } catch (e) {}
+  }
+
+  function renderVendorQr() {
+    var box = document.getElementById("vendorQrBox");
+    if (!box) return;
+    if (!currentSession || currentSession.role !== "vendor") { box.style.display = "none"; return; }
+    box.style.display = "block";
+    var shopName = currentSession.shopName || currentSession.shop || "আমার দোকান";
+    var shopLink = location.origin + location.pathname + "?shop=" + encodeURIComponent(currentSession.uid);
+    var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=" + encodeURIComponent(shopLink);
+    var nameEl = document.getElementById("vendorQrShopName");
+    if (nameEl) nameEl.textContent = "🏪 " + shopName;
+    var img = document.getElementById("vendorQrImg");
+    if (img) { img.src = qrUrl; img.alt = shopName + " QR code"; }
+    var linkEl = document.getElementById("vendorQrLink");
+    if (linkEl) { linkEl.textContent = shopLink; linkEl.href = shopLink; }
+    var dl = document.getElementById("vendorQrDownload");
+    if (dl) { dl.href = qrUrl; dl.download = "amar-dokan-qr.png"; }
+    var copyBtn = document.getElementById("vendorQrCopy");
+    if (copyBtn) copyBtn.onclick = function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shopLink).then(function () { showVendorWaFeedback("✅ দোকানের লিংক কপি হয়ে গেছে।"); }).catch(function () { prompt("দোকানের লিংক:", shopLink); });
+      } else { prompt("দোকানের লিংক:", shopLink); }
+    };
+    var shareBtn = document.getElementById("vendorQrShare");
+    if (shareBtn) shareBtn.onclick = function () {
+      if (navigator.share) {
+        navigator.share({ title: shopName, text: shopName + " — Smart Bazar", url: shopLink }).catch(function () {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shopLink).then(function () { showVendorWaFeedback("✅ লিংক কপি হয়ে গেছে — এখন যাকে খুশি পাঠিয়ে দাও।"); });
+      } else { prompt("দোকানের লিংক:", shopLink); }
+    };
+    var printBtn = document.getElementById("vendorQrPrint");
+    if (printBtn) printBtn.onclick = function () {
+      var w = window.open("", "_blank");
+      if (!w) { alert("পপ-আপ বন্ধ আছে। QR ছবিতে চাপ দিয়ে ধরে রেখে ডাউনলোড / প্রিন্ট করো।"); return; }
+      w.document.write("<html><head><title>" + shopName + " QR</title></head><body style='text-align:center;font-family:system-ui;padding:24px'><h2>" + shopName + "</h2><img src='" + qrUrl + "' style='width:300px;height:300px'><p style='font-size:14px'>" + shopLink + "</p><p>QR স্ক্যান করলেই দোকানের পণ্য দেখা যাবে</p><script>window.onload=function(){window.print();}<\/script></body></html>");
+      w.document.close();
+    };
+  }
+
   function enterDashboard(session) {
     currentSession = session;
+    syncFavoritesFromCloud();
+    renderVendorQr();
     dashLock.style.display = "none";
     dashBody.style.display = "block";
     var roleTag = session.role === "admin" ? " [Main Admin]" : (CURRENT_LANG === "en" ? " [Merchant]" : " [ব্যবসায়ী]");
@@ -4561,6 +4700,35 @@ var renderDashboardOrders = null;
   }
 })();
 
+// Vendor QR: only own shop, generated from own session uid
+function refreshVendorQr(){
+  var img=document.getElementById("vendorQrImg"); var linkEl=document.getElementById("vendorQrLinkText");
+  if(!img || !linkEl) return;
+  var uid=(typeof currentSession!=="undefined" && currentSession && currentSession.uid) ? currentSession.uid : "";
+  if(!uid){ img.style.display="none"; linkEl.textContent=""; return; }
+  var url=location.origin+location.pathname+"?shop="+encodeURIComponent(uid)+"#customer";
+  linkEl.textContent=url;
+  img.src="https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=10&data="+encodeURIComponent(url);
+  img.style.display="block";
+  var msg=document.getElementById("vendorQrMsg"); if(msg) msg.style.display="none";
+  var bind=function(id,fn){ var b=document.getElementById(id); if(b) b.onclick=fn; };
+  bind("vendorQrCopyBtn", function(){ copyTextWithFeedback(url, url); });
+  bind("vendorQrShareBtn", function(){
+    if(navigator.share){ navigator.share({title:"Smart Bazar - "+((currentSession&&currentSession.shopName)||"Shop"), text:"আমার দোকানের পণ্য দেখুন", url:url}).catch(function(){}); }
+    else copyTextWithFeedback(url, url);
+  });
+  bind("vendorQrDownloadBtn", function(){
+    var a=document.createElement("a"); a.href=img.src; a.download="smart-bazar-shop-qr.png"; document.body.appendChild(a); a.click(); a.remove();
+  });
+  bind("vendorQrPrintBtn", function(){
+    var w=window.open("","_blank"); if(!w) return;
+    w.document.write("<html><head><title>Shop QR</title></head><body style='text-align:center;font-family:sans-serif'><h2>"+esc(((currentSession&&currentSession.shopName)||"Smart Bazar"))+"</h2><img src='"+img.src+"' style='width:320px;height:320px'><p style='word-break:break-all'>"+esc(url)+"</p><script>window.onload=function(){window.print()}<\/script></body></html>"); w.document.close();
+  });
+}
+// Hook into enterDashboard via polling once: call refreshVendorQr when dashBody becomes visible
+setInterval(function(){ var b=document.getElementById("dashBody"); if(b && b.style.display!=="none") refreshVendorQr(); }, 1500);
+// Load account favorites when Firebase auth ready
+document.addEventListener("DOMContentLoaded", function(){ setTimeout(loadFavoritesFromAccount, 1200); });
 applyLanguageUI();
 showPage();
 </script>
@@ -4660,6 +4828,22 @@ showPage();
       var ref = await db.collection("products").add(Object.assign({}, p, {createdAt: firebase.firestore.FieldValue.serverTimestamp()}));
       return ref.id;
     };
+    window.SB.updateRemoteProduct = async function(id, patch){
+      await db.collection("products").doc(id).update(patch);
+    };
+    window.SB.loadFavorites = async function(uid){
+      var doc = await db.collection("favorites").doc(uid).get();
+      if (!doc.exists) return null;
+      var d = doc.data() || {};
+      return Array.isArray(d.shops) ? d.shops : [];
+    };
+    window.SB.saveFavorites = async function(uid, list){
+      await db.collection("favorites").doc(uid).set({
+        uid: uid,
+        shops: list || [],
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    };
     window.SB.deleteRemoteProduct = async function(id){
       await db.collection("products").doc(id).delete();
     };
@@ -4683,10 +4867,39 @@ showPage();
       await db.collection("orders").add(Object.assign({}, orderPayload, {createdAt: firebase.firestore.FieldValue.serverTimestamp()}));
     };
     window.SB.firestoreFetchOrders = async function(query, isPhone){
-      var snap = await db.collection("orders").orderBy("createdAt","desc").limit(20).get();
+      var uid = (auth.currentUser && auth.currentUser.uid) || null;
+      var isAdmin = false;
+      if (uid) {
+        try {
+          var aDoc = await db.collection("admins").doc(uid).get();
+          if (aDoc.exists) {
+            var aData = aDoc.data() || {};
+            isAdmin = (aData.role === "main_admin" && aData.isActive === true);
+          }
+        } catch (e) {}
+      }
       var list = [];
-      snap.forEach(function(d){ var o=d.data(); o.id=d.id; list.push(o); });
-      // Filter client-side by phone/code if needed - main script handles display via loadCustomerOrders override below
+      var seen = {};
+      function pushSnap(snap) {
+        snap.forEach(function (d) {
+          if (seen[d.id]) return; seen[d.id] = true;
+          var o = d.data(); o.id = d.id; list.push(o);
+        });
+      }
+      try {
+        if (isAdmin) {
+          var snap = await db.collection("orders").orderBy("createdAt", "desc").limit(50).get();
+          pushSnap(snap);
+        } else if (uid) {
+          var vSnap = await db.collection("orders").where("vendorUids", "array-contains", uid).limit(50).get();
+          pushSnap(vSnap);
+          var cSnap = await db.collection("orders").where("customerUid", "==", uid).limit(50).get();
+          pushSnap(cSnap);
+          list.sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+        } else {
+          return [];
+        }
+      } catch (e) { console.warn("orders fetch failed", e); }
       return list;
     };
     window.SB.loadCustomerOrders = async function(rawQuery){
@@ -4756,7 +4969,7 @@ showPage();
     auth.onAuthStateChanged(async function(user){
       if(user && window.SB._autoLoginDone!==true){
         // Don't auto-enter dashboard on homepage load - only store session hint
-        window.SB._currentFirebaseUser = user;
+        window.SB._currentFirebaseUser = user; if(typeof loadFavoritesFromAccount==='function') loadFavoritesFromAccount();
       }
     });
     console.log("✅ Smart Bazar Firebase connected: smart-bazaar-4eb42");
@@ -4969,3 +5182,4 @@ showPage();
 </html>
 
 
+  
